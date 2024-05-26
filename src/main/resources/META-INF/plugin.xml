@@ -11,6 +11,7 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-
+        <preFormatProcessor
+                implementation="com.github.janmoeller.clioncmakesourcelistsorter.formatting.MyPreFormatProcessor"/>
     </extensions>
 </idea-plugin>
