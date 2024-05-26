@@ -23,7 +23,7 @@ class MyPreFormatProcessor : PreFormatProcessor {
         val project = args.project
 
         // Sort the argument list
-        var argumentList = args.children.map { it.text }.toMutableList()
+        val argumentList = args.children.map { it.text }.toMutableList()
         val sortedSubset = argumentList.subList(range.first, range.last).sorted()
         for ((index, value) in sortedSubset.withIndex())
             argumentList[range.first + index] = value
