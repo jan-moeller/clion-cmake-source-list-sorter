@@ -123,7 +123,7 @@ class MyPreFormatProcessor : PreFormatProcessor {
     override fun process(element: ASTNode, range: TextRange): TextRange {
         // Ignore non-CMake files
         if (element.elementType.language != CMakeLanguage.INSTANCE)
-            return range;
+            return range
 
         // Find relevant nodes that carry source lists
         element.psi.accept(object : PsiRecursiveElementVisitor() {
