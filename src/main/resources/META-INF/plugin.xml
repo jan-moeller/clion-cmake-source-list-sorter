@@ -5,6 +5,8 @@
     <vendor>jan-moeller</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.clion</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
