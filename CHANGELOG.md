@@ -24,7 +24,5 @@ Initial release.
   from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
 
 [Unreleased]: https://github.com/jan-moeller/clion-cmake-source-list-sorter/compare/v0.0.2...HEAD
-
-[0.0.1]: https://github.com/jan-moeller/clion-cmake-source-list-sorter/commits/v0.0.1
-
 [0.0.2]: https://github.com/jan-moeller/clion-cmake-source-list-sorter/commits/v0.0.2
+[0.0.1]: https://github.com/jan-moeller/clion-cmake-source-list-sorter/commits/v0.0.1
