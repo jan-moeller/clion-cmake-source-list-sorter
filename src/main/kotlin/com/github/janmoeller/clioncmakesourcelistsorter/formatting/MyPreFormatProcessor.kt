@@ -10,9 +10,42 @@ import com.jetbrains.cmake.CMakeLanguage
 import com.jetbrains.cmake.psi.CMakeCommand
 import com.jetbrains.cmake.psi.CMakeCommandArguments
 import com.jetbrains.cmake.psi.CMakeElementFactory
+import java.text.Collator
+import java.util.*
+import kotlin.Comparator
 
 class MyPreFormatProcessor : PreFormatProcessor {
     private val commands = setOf("add_executable", "add_library", "target_sources")
+
+    // Function to split a path into its components
+    // Note: In CMake, paths are separated by '/', but the native path separator is also supported. This sorting only
+    // takes '/' into account.
+    private fun splitPath(path: String): List<String> {
+        return path.split('/').filter { it.isNotEmpty() }
+    }
+
+    // case-insensitive collator
+    private val collator = Collator.getInstance(Locale.ROOT).apply {
+        strength = Collator.PRIMARY
+    }
+
+    // Comparator that compares paths hierarchically
+    private val hierarchicalComparator = Comparator<String> { path1, path2 ->
+        val parts1 = splitPath(path1)
+        val parts2 = splitPath(path2)
+
+        // Compare each part of the path
+        for (i in 0 until minOf(parts1.size, parts2.size)) {
+            val comparison = collator.compare(parts1[i], parts2[i])
+            if (comparison != 0) {
+                return@Comparator comparison
+            }
+        }
+
+        // If all compared parts are equal, the shorter path comes first
+        parts1.size.compareTo(parts2.size)
+    }
+
 
     // Sorts the argument list within the given index range.
     private fun sortArguments(args: CMakeCommandArguments?, range: IntRange) {
@@ -24,7 +57,7 @@ class MyPreFormatProcessor : PreFormatProcessor {
 
         // Sort the argument list
         val argumentList = args.children.map { it.text }.toMutableList()
-        val sortedSubset = argumentList.subList(range.first, range.last).sorted()
+        val sortedSubset = argumentList.subList(range.first, range.last).sortedWith(hierarchicalComparator)
         for ((index, value) in sortedSubset.withIndex())
             argumentList[range.first + index] = value
 
