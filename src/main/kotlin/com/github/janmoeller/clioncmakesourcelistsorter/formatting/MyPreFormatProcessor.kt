@@ -35,8 +35,12 @@ class MyPreFormatProcessor : PreFormatProcessor {
     private fun makeComparator(config: ConfigManagerService): Comparator<String> {
         val collator = if (config.state.case_sensitive) Collator.getInstance(Locale.ROOT) else caseInsensitiveCollator
         return Comparator<String> { path1, path2 ->
-            val parts1 = splitPath(path1)
-            val parts2 = splitPath(path2)
+            var parts1 = splitPath(path1)
+            var parts2 = splitPath(path2)
+
+            // Swap paths if decreasing sort is requested
+            if (!config.state.increasing)
+                parts1 = parts2.also { parts2 = parts1 }
 
             // Compare each part of the path
             for (i in 0 until minOf(parts1.size, parts2.size)) {
@@ -59,11 +63,11 @@ class MyPreFormatProcessor : PreFormatProcessor {
             return
 
         val project = args.project
+        val config = project.service<ConfigManagerService>()
 
         // Sort the argument list
         val argumentList = args.children.map { it.text }.toMutableList()
-        val sortedSubset = argumentList.subList(range.first, range.last)
-            .sortedWith(makeComparator(project.service<ConfigManagerService>()))
+        val sortedSubset = argumentList.subList(range.first, range.last).sortedWith(makeComparator(config))
         for ((index, value) in sortedSubset.withIndex())
             argumentList[range.first + index] = value
 
