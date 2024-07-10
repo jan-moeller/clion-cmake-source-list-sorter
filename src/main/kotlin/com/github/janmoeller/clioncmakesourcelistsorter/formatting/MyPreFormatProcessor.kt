@@ -1,7 +1,9 @@
 package com.github.janmoeller.clioncmakesourcelistsorter.formatting
 
+import com.github.janmoeller.clioncmakesourcelistsorter.config.ConfigManagerService
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.components.service
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiRecursiveElementVisitor
@@ -25,25 +27,28 @@ class MyPreFormatProcessor : PreFormatProcessor {
     }
 
     // case-insensitive collator
-    private val collator = Collator.getInstance(Locale.ROOT).apply {
+    private val caseInsensitiveCollator = Collator.getInstance(Locale.ROOT).apply {
         strength = Collator.PRIMARY
     }
 
     // Comparator that compares paths hierarchically
-    private val hierarchicalComparator = Comparator<String> { path1, path2 ->
-        val parts1 = splitPath(path1)
-        val parts2 = splitPath(path2)
+    private fun makeComparator(config: ConfigManagerService): Comparator<String> {
+        val collator = if (config.state.case_sensitive) Collator.getInstance(Locale.ROOT) else caseInsensitiveCollator
+        return Comparator<String> { path1, path2 ->
+            val parts1 = splitPath(path1)
+            val parts2 = splitPath(path2)
 
-        // Compare each part of the path
-        for (i in 0 until minOf(parts1.size, parts2.size)) {
-            val comparison = collator.compare(parts1[i], parts2[i])
-            if (comparison != 0) {
-                return@Comparator comparison
+            // Compare each part of the path
+            for (i in 0 until minOf(parts1.size, parts2.size)) {
+                val comparison = collator.compare(parts1[i], parts2[i])
+                if (comparison != 0) {
+                    return@Comparator comparison
+                }
             }
-        }
 
-        // If all compared parts are equal, the shorter path comes first
-        parts1.size.compareTo(parts2.size)
+            // If all compared parts are equal, the shorter path comes first
+            parts1.size.compareTo(parts2.size)
+        }
     }
 
 
@@ -57,7 +62,8 @@ class MyPreFormatProcessor : PreFormatProcessor {
 
         // Sort the argument list
         val argumentList = args.children.map { it.text }.toMutableList()
-        val sortedSubset = argumentList.subList(range.first, range.last).sortedWith(hierarchicalComparator)
+        val sortedSubset = argumentList.subList(range.first, range.last)
+            .sortedWith(makeComparator(project.service<ConfigManagerService>()))
         for ((index, value) in sortedSubset.withIndex())
             argumentList[range.first + index] = value
 

@@ -7,6 +7,7 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.project.Project
 
 class MyState : BaseState() {
+    var case_sensitive = true
 }
 
 @Service(Service.Level.PROJECT)
