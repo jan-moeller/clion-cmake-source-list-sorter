@@ -19,43 +19,6 @@ import kotlin.Comparator
 class MyPreFormatProcessor : PreFormatProcessor {
     private val commands = setOf("add_executable", "add_library", "target_sources")
 
-    // Function to split a path into its components
-    // Note: In CMake, paths are separated by '/', but the native path separator is also supported. This sorting only
-    // takes '/' into account.
-    private fun splitPath(path: String): List<String> {
-        return path.split('/').filter { it.isNotEmpty() }
-    }
-
-    // case-insensitive collator
-    private val caseInsensitiveCollator = Collator.getInstance(Locale.ROOT).apply {
-        strength = Collator.PRIMARY
-    }
-
-    // Comparator that compares paths hierarchically
-    private fun makeComparator(config: ConfigManagerService): Comparator<String> {
-        val collator = if (config.state.case_sensitive) Collator.getInstance(Locale.ROOT) else caseInsensitiveCollator
-        return Comparator<String> { path1, path2 ->
-            var parts1 = splitPath(path1)
-            var parts2 = splitPath(path2)
-
-            // Swap paths if decreasing sort is requested
-            if (!config.state.increasing)
-                parts1 = parts2.also { parts2 = parts1 }
-
-            // Compare each part of the path
-            for (i in 0 until minOf(parts1.size, parts2.size)) {
-                val comparison = collator.compare(parts1[i], parts2[i])
-                if (comparison != 0) {
-                    return@Comparator comparison
-                }
-            }
-
-            // If all compared parts are equal, the shorter path comes first
-            parts1.size.compareTo(parts2.size)
-        }
-    }
-
-
     // Sorts the argument list within the given index range.
     private fun sortArguments(args: CMakeCommandArguments?, range: IntRange) {
         // If there are no arguments, do nothing
@@ -66,13 +29,13 @@ class MyPreFormatProcessor : PreFormatProcessor {
         val config = project.service<ConfigManagerService>()
 
         // Sort the argument list
-        val argumentList = args.children.map { it.text }.toMutableList()
-        val sortedSubset = argumentList.subList(range.first, range.last).sortedWith(makeComparator(config))
+        val argumentList = args.children.map { CMakePath(it.text) }.toMutableList()
+        val sortedSubset = argumentList.subList(range.first, range.last).sortedWith(CMakePathComparator(increasing = config.state.increasing))
         for ((index, value) in sortedSubset.withIndex())
             argumentList[range.first + index] = value
 
         // Create new sorted argument elements
-        val sortedArguments = argumentList.map { CMakeElementFactory.createArgument(project, it) }
+        val sortedArguments = argumentList.map { CMakeElementFactory.createArgument(project, it.original) }
 
         // Update the tree with the sorted arguments
         WriteCommandAction.runWriteCommandAction(project) {
