@@ -34,5 +34,25 @@ class CMakePathTest : TestCase() {
         assertEquals(listOf("$"), CMakePath("$").toList())
         assertEquals(listOf("\$FOO"), CMakePath("\$FOO").toList())
         assertEquals(listOf("\$ENF{foo", "bar}"), CMakePath("\$ENF{foo/bar}").toList())
+
+        // paths containing generator expressions
+        assertEquals(listOf("\$<>"), CMakePath("\$<>").toList())
+        assertEquals(listOf("\$<PLATFORM_ID>"), CMakePath("\$<PLATFORM_ID>").toList())
+        assertEquals(
+            listOf("\$<CXX_COMPILER_VERSION:version>", "bar"),
+            CMakePath("\$<CXX_COMPILER_VERSION:version>/bar").toList()
+        )
+        assertEquals(
+            listOf("\$<PATH:RELATIVE_PATH,a/b/c,src/>"),
+            CMakePath("\$<PATH:RELATIVE_PATH,a/b/c,src/>").toList()
+        )
+        assertEquals(
+            listOf("\$<JOIN:$<TARGET_PROPERTY:tgt,INCLUDE_DIRECTORIES>,;foo>", "bar"),
+            CMakePath("\$<JOIN:\$<TARGET_PROPERTY:tgt,INCLUDE_DIRECTORIES>,;foo>/bar").toList()
+        )
+        assertEquals(
+            listOf("foo\$<PATH:GET_ROOT_NAME,\${SOME_DIR}>", "\$<PATH:REPLACE_EXTENSION,\${SOME_PATH},.c>bar"),
+            CMakePath("foo\$<PATH:GET_ROOT_NAME,\${SOME_DIR}>/\$<PATH:REPLACE_EXTENSION,\${SOME_PATH},.c>bar").toList()
+        )
     }
 }

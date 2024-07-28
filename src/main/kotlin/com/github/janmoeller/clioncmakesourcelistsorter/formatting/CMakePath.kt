@@ -29,7 +29,7 @@ class CMakePath(path: String) : Iterable<String> {
         while (result.remaining.isNotEmpty()) {
             val c = result.remaining.first()
             if (c == '$') {
-                val variableRef = parseVariableRef(result.remaining)
+                val variableRef = parseExpression(result.remaining)
                 if (variableRef.match.isNotEmpty()) {
                     result.match += variableRef.match
                     result.remaining = variableRef.remaining
@@ -45,9 +45,10 @@ class CMakePath(path: String) : Iterable<String> {
         return result
     }
 
-    private fun parseVariableRef(s: String): ParseResult {
+    // This function parses variable references and generator expressions
+    private fun parseExpression(s: String): ParseResult {
         val result = ParseResult("", s)
-
+        var endChar = '}'
         if (result.remaining.startsWith("\${")) {
             result.match += "\${"
             result.remaining = result.remaining.drop(2);
@@ -57,14 +58,19 @@ class CMakePath(path: String) : Iterable<String> {
         } else if (result.remaining.startsWith("\$CACHE{")) {
             result.match += "\$CACHE{"
             result.remaining = result.remaining.drop(7);
+        } else if (result.remaining.startsWith("$<")) {
+            result.match += "$<"
+            result.remaining = result.remaining.drop(2);
+            endChar = '>'
         } else
             return result
 
         while (result.remaining.isNotEmpty()) {
             val c = result.remaining.first()
-            // Try to parse nested variables
+            // Parse nested expression
             if (c == '$') {
-                val inner = parseVariableRef(result.remaining)
+                val inner = parseExpression(result.remaining)
+                // If the $ did not start an expression, the result is empty.
                 if (inner.match.isNotEmpty()) {
                     result.match += inner.match
                     result.remaining = inner.remaining
@@ -73,7 +79,7 @@ class CMakePath(path: String) : Iterable<String> {
             }
             result.match += c
             result.remaining = result.remaining.drop(1)
-            if (c == '}')
+            if (c == endChar)
                 break
         }
 
