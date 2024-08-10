@@ -1,9 +1,8 @@
 package com.github.janmoeller.clioncmakesourcelistsorter.formatting
 
-import com.github.janmoeller.clioncmakesourcelistsorter.config.ConfigManagerService
+import com.github.janmoeller.clioncmakesourcelistsorter.config.AppSettings
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.components.service
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiRecursiveElementVisitor
@@ -12,9 +11,6 @@ import com.jetbrains.cmake.CMakeLanguage
 import com.jetbrains.cmake.psi.CMakeCommand
 import com.jetbrains.cmake.psi.CMakeCommandArguments
 import com.jetbrains.cmake.psi.CMakeElementFactory
-import java.text.Collator
-import java.util.*
-import kotlin.Comparator
 
 class MyPreFormatProcessor : PreFormatProcessor {
     private val commands = setOf("add_executable", "add_library", "target_sources")
@@ -26,11 +22,12 @@ class MyPreFormatProcessor : PreFormatProcessor {
             return
 
         val project = args.project
-        val config = project.service<ConfigManagerService>()
+        val config = AppSettings.instance.state
 
         // Sort the argument list
         val argumentList = args.children.map { CMakePath(it.text) }.toMutableList()
-        val sortedSubset = argumentList.subList(range.first, range.last).sortedWith(CMakePathComparator(increasing = config.state.increasing))
+        val sortedSubset =
+            argumentList.subList(range.first, range.last).sortedWith(CMakePathComparator(increasing = !config.reverse))
         for ((index, value) in sortedSubset.withIndex())
             argumentList[range.first + index] = value
 

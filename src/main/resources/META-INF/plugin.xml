@@ -13,5 +13,12 @@
     <extensions defaultExtensionNs="com.intellij">
         <preFormatProcessor
                 implementation="com.github.janmoeller.clioncmakesourcelistsorter.formatting.MyPreFormatProcessor"/>
+        <applicationService
+                serviceImplementation="com.github.janmoeller.clioncmakesourcelistsorter.config.AppSettings"/>
+        <applicationConfigurable
+                parentId=""
+                instance="com.github.janmoeller.clioncmakesourcelistsorter.config.AppSettingsConfigurable"
+                id="org.intellij.sdk.settings.AppSettingsConfigurable"
+                displayName="CMake Source List Sorter Settings"/>
     </extensions>
 </idea-plugin>
