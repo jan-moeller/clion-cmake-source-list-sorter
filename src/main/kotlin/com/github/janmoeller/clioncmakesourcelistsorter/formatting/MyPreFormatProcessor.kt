@@ -25,14 +25,15 @@ class MyPreFormatProcessor : PreFormatProcessor {
         val config = AppSettings.instance.state
 
         // Sort the argument list
-        val argumentList = args.children.map { CMakePath(it.text) }.toMutableList()
+        val argumentList = args.children.map { it.text }.toMutableList()
         val sortedSubset =
-            argumentList.subList(range.first, range.last).sortedWith(CMakePathComparator(increasing = !config.reverse))
+            argumentList.subList(range.first, range.last).map { CMakePath(it) }
+                .sortedWith(CMakePathComparator(increasing = !config.reverse))
         for ((index, value) in sortedSubset.withIndex())
-            argumentList[range.first + index] = value
+            argumentList[range.first + index] = value.original
 
         // Create new sorted argument elements
-        val sortedArguments = argumentList.map { CMakeElementFactory.createArgument(project, it.original) }
+        val sortedArguments = argumentList.map { CMakeElementFactory.createArgument(project, it) }
 
         // Update the tree with the sorted arguments
         WriteCommandAction.runWriteCommandAction(project) {
