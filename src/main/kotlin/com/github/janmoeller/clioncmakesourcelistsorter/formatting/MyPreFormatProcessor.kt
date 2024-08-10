@@ -33,7 +33,7 @@ class MyPreFormatProcessor : PreFormatProcessor {
             argumentList[range.first + index] = value.original
 
         // Create new sorted argument elements
-        val sortedArguments = argumentList.map { CMakeElementFactory.createArgument(project, it) }
+        val sortedArguments = argumentList.map { CMakeElementFactory.createArgumentRaw(project, it) }
 
         // Update the tree with the sorted arguments
         WriteCommandAction.runWriteCommandAction(project) {
