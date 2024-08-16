@@ -3,6 +3,14 @@ package com.github.janmoeller.clioncmakesourcelistsorter.formatting
 class CMakePath(path: String) : Iterable<String> {
     val original = path
     val absolute = path.startsWith("/")
+    val startsWithRegularVariable: Boolean
+        get() = parts.isNotEmpty() && parts.first().startsWith("\${")
+    val startsWithEnvVariable: Boolean
+        get() = parts.isNotEmpty() && parts.first().startsWith("\$ENV{")
+    val startsWithCacheVariable: Boolean
+        get() = parts.isNotEmpty() && parts.first().startsWith("\$CACHE{")
+    val startsWithGeneratorExpression: Boolean
+        get() = parts.isNotEmpty() && parts.first().startsWith("\$<")
     private val parts: List<String> = splitPath(path)
 
     // Function to split a path into its components

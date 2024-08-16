@@ -55,4 +55,51 @@ class CMakePathTest : TestCase() {
             CMakePath("foo\$<PATH:GET_ROOT_NAME,\${SOME_DIR}>/\$<PATH:REPLACE_EXTENSION,\${SOME_PATH},.c>bar").toList()
         )
     }
+
+    fun testCMakePathStartsWith() {
+        assert(!CMakePath("a").startsWithRegularVariable)
+        assert(!CMakePath("a").startsWithEnvVariable)
+        assert(!CMakePath("a").startsWithCacheVariable)
+        assert(!CMakePath("a").startsWithGeneratorExpression)
+
+        assert(!CMakePath("a/b").startsWithRegularVariable)
+        assert(!CMakePath("a/b").startsWithEnvVariable)
+        assert(!CMakePath("a/b").startsWithCacheVariable)
+        assert(!CMakePath("a/b").startsWithGeneratorExpression)
+
+        assert(CMakePath("\${a}/b").startsWithRegularVariable)
+        assert(!CMakePath("\${a}/b").startsWithEnvVariable)
+        assert(!CMakePath("\${a}/b").startsWithCacheVariable)
+        assert(!CMakePath("\${a}/b").startsWithGeneratorExpression)
+
+        assert(!CMakePath("\$ENV{a}/b").startsWithRegularVariable)
+        assert(CMakePath("\$ENV{a}/b").startsWithEnvVariable)
+        assert(!CMakePath("\$ENV{a}/b").startsWithCacheVariable)
+        assert(!CMakePath("\$ENV{a}/b").startsWithGeneratorExpression)
+
+        assert(!CMakePath("\$CACHE{a}/b").startsWithRegularVariable)
+        assert(!CMakePath("\$CACHE{a}/b").startsWithEnvVariable)
+        assert(CMakePath("\$CACHE{a}/b").startsWithCacheVariable)
+        assert(!CMakePath("\$CACHE{a}/b").startsWithGeneratorExpression)
+
+        assert(!CMakePath("\$<a:b>/b").startsWithRegularVariable)
+        assert(!CMakePath("\$<a:b>/b").startsWithEnvVariable)
+        assert(!CMakePath("\$<a:b>/b").startsWithCacheVariable)
+        assert(CMakePath("\$<a:b>/b").startsWithGeneratorExpression)
+
+        assert(!CMakePath("foo\${a}/b").startsWithRegularVariable)
+        assert(!CMakePath("foo\$ENV{a}/b").startsWithEnvVariable)
+        assert(!CMakePath("foo\$CACHE{a}/b").startsWithCacheVariable)
+        assert(!CMakePath("foo\$<a:b>/b").startsWithGeneratorExpression)
+
+        assert(CMakePath("\${a}foo/b").startsWithRegularVariable)
+        assert(CMakePath("\$ENV{a}foo/b").startsWithEnvVariable)
+        assert(CMakePath("\$CACHE{a}foo/b").startsWithCacheVariable)
+        assert(CMakePath("\$<a:b>foo/b").startsWithGeneratorExpression)
+
+        assert(!CMakePath("a/\${b}").startsWithRegularVariable)
+        assert(!CMakePath("a/\$ENV{b}").startsWithEnvVariable)
+        assert(!CMakePath("a/\$CACHE{b}").startsWithCacheVariable)
+        assert(!CMakePath("a/\$<a:b>").startsWithGeneratorExpression)
+    }
 }
