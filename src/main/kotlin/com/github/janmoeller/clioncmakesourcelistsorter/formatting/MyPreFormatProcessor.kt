@@ -28,7 +28,17 @@ class MyPreFormatProcessor : PreFormatProcessor {
         val argumentList = args.children.map { it.text }.toMutableList()
         val sortedSubset =
             argumentList.subList(range.first, range.last).map { CMakePath(it) }
-                .sortedWith(CMakePathComparator(increasing = !config.reverse))
+                .sortedWith(
+                    CMakePathComparator(
+                        increasing = !config.reverse,
+                        variableGroup = config.variableGroup,
+                        cacheVariableGroup = config.cacheVariableGroup,
+                        envVariableGroup = config.envVariableGroup,
+                        generatorExprGroup = config.generatorExpressionGroup,
+                        absoluteGroup = config.absolutePathGroup,
+                        anythingElseGroup = config.remainingGroup
+                    )
+                )
         for ((index, value) in sortedSubset.withIndex())
             argumentList[range.first + index] = value.original
 

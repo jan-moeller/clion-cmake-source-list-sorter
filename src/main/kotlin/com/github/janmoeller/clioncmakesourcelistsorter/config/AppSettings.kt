@@ -4,7 +4,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
-import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.NotNull
 
 
@@ -15,6 +14,12 @@ import org.jetbrains.annotations.NotNull
 internal class AppSettings
     : PersistentStateComponent<AppSettings.State> {
     internal class State {
+        var variableGroup: Int = 0
+        var envVariableGroup: Int = 0
+        var cacheVariableGroup: Int = 0
+        var generatorExpressionGroup: Int = 0
+        var absolutePathGroup: Int = 0
+        var remainingGroup: Int = 0
         var reverse: Boolean = false
     }
 
