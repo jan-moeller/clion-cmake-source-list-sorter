@@ -11,7 +11,7 @@ class CMakePathComparator(
     val cacheVariableGroup: Int = 0,
     val envVariableGroup: Int = 0,
     val generatorExprGroup: Int = 0,
-    val anythingElseGroup: Int = 0
+    val remainingGroup: Int = 0
 ) : Comparator<CMakePath> {
     private val collator = Collator.getInstance(Locale.ROOT)
     private val comparator = Comparator<CMakePath> { path1, path2 ->
@@ -53,7 +53,7 @@ class CMakePathComparator(
             return envVariableGroup
         if (path.startsWithGeneratorExpression)
             return generatorExprGroup
-        return anythingElseGroup
+        return remainingGroup
     }
 
     override fun compare(o1: CMakePath?, o2: CMakePath?): Int {

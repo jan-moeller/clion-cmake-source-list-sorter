@@ -36,7 +36,7 @@ class MyPreFormatProcessor : PreFormatProcessor {
                         envVariableGroup = config.envVariableGroup,
                         generatorExprGroup = config.generatorExpressionGroup,
                         absoluteGroup = config.absolutePathGroup,
-                        anythingElseGroup = config.remainingGroup
+                        remainingGroup = config.remainingGroup
                     )
                 )
         for ((index, value) in sortedSubset.withIndex())
