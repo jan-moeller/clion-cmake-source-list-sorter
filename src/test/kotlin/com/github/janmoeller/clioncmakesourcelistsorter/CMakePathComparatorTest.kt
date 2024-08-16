@@ -48,9 +48,29 @@ class CMakePathComparatorTest : TestCase() {
                 CMakePath("a/b"),
                 CMakePath("/a/b"),
                 CMakePath("a/a"),
-            ).sortedWith(CMakePathComparator(absoluteFirst = false))
+            ).sortedWith(CMakePathComparator(absoluteGroup = 1))
         )
 
+        assertEquals(
+            listOf(
+                CMakePath("/a/a"),
+                CMakePath("/a/a/a"),
+                CMakePath("/a/b"),
+                CMakePath("a/a"),
+                CMakePath("a/a/a"),
+                CMakePath("a/b"),
+            ),
+            listOf(
+                CMakePath("a/a/a"),
+                CMakePath("/a/a/a"),
+                CMakePath("/a/a"),
+                CMakePath("a/b"),
+                CMakePath("/a/b"),
+                CMakePath("a/a"),
+            ).sortedWith(CMakePathComparator(absoluteGroup = -1))
+        )
+
+        println()
         assertEquals(
             listOf(
                 CMakePath("/a/b"),
@@ -67,7 +87,7 @@ class CMakePathComparatorTest : TestCase() {
                 CMakePath("a/b"),
                 CMakePath("/a/b"),
                 CMakePath("a/a"),
-            ).sortedWith(CMakePathComparator(increasing = false))
+            ).sortedWith(CMakePathComparator(absoluteGroup = -1, increasing = false))
         )
     }
 }
